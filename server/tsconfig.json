@@ -21,9 +21,10 @@
       "@routes/*": ["./src/routes/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@models/*": ["./src/models/*"],
-      "@schemas/*": ["./src/routes/*"],
-      "@utls/*": ["./src/utils/*"],
-      "@middlewares/*": ["./src/middlewares/*"]
+      "@schemas/*": ["./src/schemas/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@config/*": ["./src/config/*"]
     }
   },
   "include": ["src/**/*", "./eslintrc"],
