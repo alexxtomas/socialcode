@@ -12,19 +12,25 @@ const UserSchema = new Schema(
     password: { type: String, required: true },
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    avatar: { type: String, required: true }
+    avatar: { type: String, default: "https://i.imgur.com/6VBx3io.png" },
+    bio: { type: String, required: true },
+    followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    snippets: [{ type: Schema.Types.ObjectId, ref: "Snippet" }],
+    replies: [{ type: Schema.Types.ObjectId, ref: "Reply" }]
   },
   {
-    timestamps: true
+    timestamps: true,
+    versionKey: false
   }
 );
 
-type User = InferSchemaType<typeof UserSchema>;
+type User = Omit<InferSchemaType<typeof UserSchema>, "createdAt" | "updatedAt">;
 
-type UserExtended = User & Document & UserMethods;
+export type UserDocument = InferSchemaType<typeof UserSchema> & Document & UserMethods;
 
 UserSchema.pre("save", async function preSaveCallback(next) {
-  const user = this as UserExtended;
+  const user = this as UserDocument;
   if (!user.isModified("password")) {
     return next();
   }
@@ -37,11 +43,20 @@ UserSchema.pre("save", async function preSaveCallback(next) {
 
 UserSchema.methods.comparePassword = async function comparePassword(candidatePassword: string) {
   const user = this as User;
+
   return bycript.compare(candidatePassword, user.password).catch(() => {
     return false;
   });
 };
 
-const UserModel = model("User", UserSchema);
+UserSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id;
+    delete returnedObject._id;
+    delete returnedObject.password;
+  }
+});
+
+const UserModel = model<UserDocument>("User", UserSchema);
 
 export { User, UserModel };

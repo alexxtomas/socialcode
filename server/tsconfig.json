@@ -24,7 +24,8 @@
       "@schemas/*": ["./src/schemas/*"],
       "@utils/*": ["./src/utils/*"],
       "@middlewares/*": ["./src/middlewares/*"],
-      "@config/*": ["./src/config/*"]
+      "@config/*": ["./src/config/*"],
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["src/**/*", "./eslintrc"],

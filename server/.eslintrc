@@ -28,7 +28,7 @@
     "func-name-matching": "error",
     "func-names": "error",
     "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
-    "id-denylist": ["error", "data", "err", "e", "cb", "callback"],
+    "id-denylist": ["error", "err", "e", "cb", "callback"],
     "max-classes-per-file": "error",
     "max-depth": ["error", 4],
     "max-lines": ["error", { "max": 300, "skipBlankLines": true, "skipComments": true }],

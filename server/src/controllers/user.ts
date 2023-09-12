@@ -1,7 +1,10 @@
-import { User, UserModel } from "@models/User";
+import { UserModel } from "@models/User";
 import { logger } from "@utils/logger";
 import { Request, Response } from "express";
-import { validateUser } from "@schemas/user";
+import { SignUpInput } from "@schemas/user";
+import { SessionService } from "@services/session";
+import { signJwt } from "@utils/jwt";
+import { config } from "@config/index";
 
 export class UserController {
   static async getAllUsers(req: Request, res: Response) {
@@ -31,27 +34,75 @@ export class UserController {
     }
   }
 
-  static async signUp(req: Request, res: Response) {
-    const result = validateUser(req.body);
-
-    if (!result.success) {
-      return res.status(400).json({ message: JSON.parse(result.error.message) });
+  static async signUp(req: Request<object, object, SignUpInput["body"]>, res: Response) {
+    try {
+      const user = await UserModel.create(req.body);
+      res.json(user);
+    } catch (createUserError) {
+      logger.error(createUserError);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
+  }
 
-    const emailExists = await UserModel.exists({ email: req.body.email });
-    const usernameExists = await UserModel.exists({ username: req.body.username });
-    if (emailExists) {
-      return res.status(400).json({ message: "Email already exists" });
+  static async signIn(req: Request, res: Response) {
+    const { email, password } = req.body;
+    try {
+      const user = await UserModel.findOne({ email });
+      const isMatch = await user?.comparePassword(password);
+
+      if (!user || !isMatch) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      const session = await SessionService.create({
+        userId: user._id,
+        userAgent: req.headers["user-agent"] ?? ""
+      });
+
+      const payload = { ...user.toJSON(), session: session.id };
+
+      const accessToken = signJwt({
+        payload,
+        options: { expiresIn: config.jwt.accessTokenTimeToLive }
+      });
+
+      const refreshToken = signJwt({
+        payload,
+        options: { expiresIn: config.jwt.refreshTokenTimeToLive }
+      });
+
+      res.json({ accessToken, refreshToken });
+    } catch (signInError) {
+      logger.error(signInError);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-    if (usernameExists) {
-      return res.status(400).json({ message: "Username already exists" });
+  }
+
+  static async logout(req: Request, res: Response) {
+    const sesstionId = res.locals.user.session;
+
+    await SessionService.update({
+      query: { _id: sesstionId },
+      update: { valid: false }
+    });
+    return res.send({
+      accessToken: null,
+      refreshToken: null
+    });
+  }
+
+  static async getLoggedIn(req: Request, res: Response) {
+    const userId = res.locals.user.id;
+
+    try {
+      const sessions = await SessionService.find({
+        query: { user: userId, valid: true }
+      });
+      return res.json(sessions);
+    } catch (findSessionError) {
+      logger.error(findSessionError);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-
-    const newUser: User = {
-      ...result.data
-    };
-
-    res.json(user);
   }
 
   static async update(req: Request, res: Response) {

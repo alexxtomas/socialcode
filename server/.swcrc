@@ -14,7 +14,9 @@
       "@schemas/*": ["./src/schemas/*"],
       "@utils/*": ["./src/utils/*"],
       "@middlewares/*": ["./src/middlewares/*"],
-      "@config/*": ["./src/config/*"]
+      "@config/*": ["./src/config/*"],
+      "@validations/*": ["./src/validations/*"],
+      "@services/*": ["./src/services/*"]
     },
     "baseUrl": "."
   },
