@@ -20,7 +20,11 @@ const payload = {
         required_error: "Snippet is required",
         invalid_type_error: "Snippet must be a string"
       })
-      .min(3, { message: "Snippet cannot be less than 3 characters" })
+      .min(3, { message: "Snippet cannot be less than 3 characters" }),
+    likes: z.array(z.string(), {
+      required_error: "Likes is required",
+      invalid_type_error: "Likes must be an array of strings"
+    })
   })
 };
 
@@ -34,11 +38,11 @@ const params = {
 };
 
 export const createSnippetSchema = z.object({
-  ...payload
+  body: payload.body.omit({ likes: true })
 });
 
 export const updateSnippetSchema = z.object({
-  ...payload,
+  body: payload.body.partial(),
   ...params
 });
 

@@ -6,7 +6,6 @@ const SnippetSchema = new Schema(
     creator: { type: Schema.Types.ObjectId, ref: "User" },
     content: { type: String, required: true },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    replies: [{ type: Schema.Types.ObjectId, ref: "Reply" }],
     language: { type: String, required: true, enum: AVAILABLE_LANGUAGES },
     snippet: { type: String, required: true }
   },

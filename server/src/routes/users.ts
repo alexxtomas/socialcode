@@ -6,11 +6,11 @@ import { Router } from "express";
 
 const userRouter = Router();
 
-userRouter.get("/", UserController.getAllUsers);
+userRouter.get("/", UserController.getAll);
 
-userRouter.post("/sign-up", validateResource(signUpSchema), UserController.signUp);
+userRouter.post("/sign-up", validateResource({ schema: signUpSchema }), UserController.signUp);
 
-userRouter.post("/sign-in", validateResource(signInSchema), UserController.signIn);
+userRouter.post("/sign-in", validateResource({ schema: signInSchema }), UserController.signIn);
 
 userRouter.get("/logout", requireUser, UserController.logout);
 

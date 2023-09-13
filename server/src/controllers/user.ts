@@ -7,7 +7,7 @@ import { signJwt } from "@utils/jwt";
 import { config } from "@config/index";
 
 export class UserController {
-  static async getAllUsers(req: Request, res: Response) {
+  static async getAll(req: Request, res: Response) {
     try {
       const users = await UserModel.find();
       if (users.length === 0) {
